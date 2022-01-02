@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+
+}
+@model SupplementOrderWeb.Models.Customer
+
+
+
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <h2>Supplement - Login</h2>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true,null,new {@class = "alert alert-danger"})
+            <fieldset>
+                <div class="form-group">
+                    <label for="phone">Phone: </label>
+                    @Html.TextBoxFor(model => model.phone, new { @class = "form-control", @placeholder = "Enter your phone number", @autofocus = "autofocus" })
+                </div>
+                <div class="form-group">
+                    <label for="password">Password: </label>
+                    @Html.TextBoxFor(model => model.password, new { @class = "form-control", @placeholder = "Enter your password", @type = "password" })
+                </div>
+
+                <button class="btn btn-primary" type="submit">Login</button>
+                <h2 class="text-success"> </h2>
+            </fieldset>
+        }
+    </div>
+</div>

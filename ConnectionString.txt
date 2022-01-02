@@ -1,0 +1,2 @@
+Data Source=Kawai;Initial Catalog=SupplementManagement;Integrated Security=True
+metadata=res://*/Models.OrderModel.csdl|res://*/Models.OrderModel.ssdl|res://*/Models.OrderModel.msl;provider=System.Data.SqlClient;provider connection string="data source=Kawai;initial catalog=SupplementManagement;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework"

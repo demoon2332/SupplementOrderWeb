@@ -1,0 +1,233 @@
+﻿@{
+    ViewBag.Title = "Supplement Ordering ";
+
+}
+@model SupplementOrderWeb.Models.Type
+
+
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<p>Remember to fullfil the information , any help or cancel the order , you can contact us with our hotline</p>
+
+
+
+<div asp-controller="Home" class="row d-flex flex-row">
+    <select id="typeList" class="form-select btn btn-info" aria-label="Types">
+        <option selected>Choose type</option>
+        @foreach (var item in ViewBag.TypesList)
+        {
+
+            <option value=@item.id>@item.name</option>
+        }
+    </select>
+
+    <select id="productList" class="form-select btn btn-info" aria-label="Products">
+        <option selected value=0>Choose product</option>
+    </select>
+    <label for="quantity">Quantity: </label>
+    <input type="number" id="quantity" name="quantity" value=1
+           min="1" max="200">
+
+
+    <div id="addBtn" class="btn btn-primary " style="margin-left: 4rem">Add to cart</div>
+</div>
+
+
+<div class="row">
+    <table id="table" class="table">
+        <thead>
+            <tr>
+                <th scope="col">#ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <h2>Ordering information</h2>
+        <label for="paymentType">Choose the Payment Type</label>
+        <div class="btn-group">
+            <select name="paymentType" id="paymentType" class="form-select btn btn-info" aria-label="Types">
+                <option selected value="Cashes">Cashes</option>
+                <option value="Credit Cards">Credit Cards</option>
+                <option value="MoMo Wallet">MoMo Wallet</option>
+            </select>
+        </div>
+        <button class="btn btn-success" id="finishBtn">Finish order</button>
+        <h5>Name: </h5>
+        <h5>Address: </h5>
+        <h4>Total Pay: <span id="total" style="color:red">0</span><span style="color:red"> VNĐ</span></h4>
+        <h2 class="text-sucess"> </h2>
+    </div>
+</div>
+<script type="text/javascript">
+    let typeList = document.getElementById("typeList");
+    typeList.addEventListener('change', (event) => {
+        getProductList(`${event.target.value}`);       
+    });
+
+    let addBtn = document.getElementById("addBtn");
+    addBtn.addEventListener('click', (event) => {
+        addToCart();
+    });
+
+
+    function getProductList(id) {
+        $.ajax({
+            url: "/Home/getData",
+            type: "POST",
+            data: jQuery.param({ typeId: id }),
+            dataType: "JSON",
+            success: function (data) {
+                console.log(data);
+                var $el = $("#productList");
+                $el.empty();
+                for (var i = 0; i < data.length;i++) {
+                    // data[i].something, etc
+                    $el.append($("<option></option>")
+                        .attr("value", data[i].id+"|"+data[i].price+"|"+data[i].unit).text(data[i].name));
+                }
+            }
+        });
+    }
+
+
+    function remove(event) {
+
+        // update total Pay
+        var price = parseFloat($(event.target).parent().parent().find('td.price').html());
+        var quantity = parseInt($(event.target).parent().parent().find('td.quantity').html());
+        var oldTotal = parseFloat($('#total').html());
+        var a = parseFloat(oldTotal - parseFloat(price * quantity)).toFixed(2);
+        if (a < 0)
+            $('#total').html("0");
+        else
+            $('#total').html(a);
+        
+
+        // delete item
+        $(event.target).parent().parent().remove();
+    }
+
+
+    function addToCart() {
+        let value = $('#productList').val().split('|');
+
+
+        let productName = $('#productList').text();
+        let productId = value[0];
+        let price = value[1];
+        let unit = value[2];
+        let quantity = $('#quantity').val();
+        if (productId == 0) {
+            alert("Please choose a product.");
+        }
+        else if (quantity < 1 || quantity > 200) {
+            alert("Please choose quantity between 1 and 200.");
+        }
+        else {
+            var exist = false;
+            $('#table tr').each(function () {              
+                var row = $(this);
+                var id = row.find("td:first").html();
+                var price = parseFloat(row.find("td.price").html());
+                if (id == productId ) {
+                    alert("Trung");
+                    var oldQuantity = row.find('td.quantity').html();
+                    row.find('td.quantity').html(parseInt(quantity) + parseInt(oldQuantity));
+
+                    exist = true;
+                }
+            });
+
+            if (!exist) {
+                let table = $('#table');
+                table.append(`<tr class="productId"><td>${productId}</td><td>${productName}</td><td>${unit}</td><td class="quantity">${quantity}</td><td class="price">${price}</td><td><button onClick="remove(event)" class="removeBtn">Remove</button></td></tr>`)
+            }
+            var oldTotal = parseFloat($('#total').html());
+            $('#total').html(parseFloat(oldTotal + parseFloat(price * quantity)).toFixed(2));
+        }
+
+        // reset Quantity box :
+        $('#quantity').val(1);
+    }
+
+
+    function __doPostBack(eventTarget, eventArgument) {
+        if (eventArgument == 'Yes_clicked') {
+            makeOrder();
+            
+        }
+        else if (eventArgument == 'No_clicked') {
+
+        }
+    }
+
+    let finishBtn = document.getElementById('finishBtn');
+    finishBtn.addEventListener('click', (event) => {
+
+        var paymentType = $('#paymentType').val();
+        if (paymentType != 'Cashes' && paymentType != 'Credit Cards' && paymentType != 'MoMo Wallet' ){
+            alert("error");
+            return;
+        }
+        
+        if (confirm("Do you want to make an order ! You can't change any further")) {
+            __doPostBack('', 'Yes_clicked');
+        } else {
+            __doPostBack('', 'No_clicked')
+        }
+    });
+
+    function getInformation() {
+
+        var arrayJSON = [];
+
+        $('#table tbody tr').each(function () {
+            var row = $(this);
+            var id = row.find("td:first").html();
+            var quantity = row.find("td.quantity").html();
+            var json = {
+                "pid": id, "quantity": quantity
+            };
+            arrayJSON.push(json);
+        });
+        return arrayJSON;
+    }
+
+    function makeOrder() {
+
+        var paymentType = $('#paymentType').val();
+        arrJSON = getInformation();
+        console.log("at web:")
+        console.log(JSON.stringify(arrJSON))
+
+        $.ajax({
+            url: "/Home/makeOrder",
+            type: "POST",
+            data: jQuery.param({ json: JSON.stringify(arrJSON), paymentType: paymentType }),
+            error: function (response) {
+                alert(response.responseText);
+            },
+            success: function (data) {
+                alert(data);
+                console.log("Data response :" + data);
+                location.reload();
+            }
+        });
+    }
+
+
+</script>
+
+
+
