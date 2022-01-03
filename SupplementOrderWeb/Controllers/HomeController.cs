@@ -63,6 +63,21 @@ namespace SupplementOrderWeb.Controllers
             string v = JsonConvert.SerializeObject(list);
             return v;
         }
+        [HttpPost]
+        public string isLogin()
+        {
+            if (SessionHelper.getSession() != null)
+            {
+                return SessionHelper.getSession().UserPhone.ToString();
+            }
+            return "nothing";
+        }
+
+        [HttpPost]
+        public void setLogOut()
+        {
+            SessionHelper.setSession(null);
+        }
 
         [HttpPost]
         public string makeOrder(string json,string paymentType)

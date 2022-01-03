@@ -22,8 +22,8 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("Order", "Order", "Home")</li>
-                  
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li class=" ml-auto"><a id="loginLink">Log In</a></li>
                 </ul>
             </div>
         </div>
@@ -44,5 +44,33 @@
 </html>
 
 <script>
+    $.ajax({
+        url: "/Home/isLogin",
+        type: "POST",
+        success: function (data) {
+            let loginLink = document.getElementById("loginLink");
+            if (data != "nothing") {                
+                loginLink.href = "";
+                loginLink.innerHTML = data + " | Log out";
+                loginLink.addEventListener('click', (event) => {
+                    logOut();
+                });
+            }
+            else {
+                loginLink.href = "/Login/Index";
+                loginLink.innerHTML = "Guest | Log in";
+            }
+        }
+    });
 
+
+    function logOut() {
+        $.ajax({
+            url: "/Home/setLogOut",
+            type: "POST",
+            success: function (data) {
+
+            }
+        });
+    }
 </script>
