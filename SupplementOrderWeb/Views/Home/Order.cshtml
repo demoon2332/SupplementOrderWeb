@@ -159,7 +159,6 @@
                 var id = row.find("td:first").html();
                 var price = parseFloat(row.find("td.price").html());
                 if (id == productId ) {
-                    alert("Trung");
                     var oldQuantity = row.find('td.quantity').html();
                     row.find('td.quantity').html(parseInt(quantity) + parseInt(oldQuantity));
 
