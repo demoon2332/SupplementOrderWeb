@@ -13,7 +13,13 @@ namespace SupplementOrderWeb.Controllers
     {
         private supplementOrderDBContext context;
 
-        
+        private static HomeController instance;
+
+        public static HomeController Instance
+        {
+            get { if (instance == null) instance = new HomeController(); return instance; }
+            private set => instance = value;
+        }
 
         public ActionResult Index()
         {
@@ -31,7 +37,7 @@ namespace SupplementOrderWeb.Controllers
             {
                 Type i = new Type();
                 i.id = (byte)row["id"];
-                i.name= row["name"].ToString();
+                i.name = row["name"].ToString();
                 typesList.Add(i);
             }
             ViewBag.TypesList = typesList;
@@ -44,6 +50,14 @@ namespace SupplementOrderWeb.Controllers
 
             return View();
         }
+
+        public ActionResult Cart()
+        {
+            ViewBag.Message = "Our information here. Contact us if you need some help";
+
+            return View();
+        }
+
         [HttpPost]
         public string getData(byte typeId)
         {
@@ -51,7 +65,7 @@ namespace SupplementOrderWeb.Controllers
 
             string query = "Select * from Product where type=" + typeId;
             DataTable data = DataProvider.Instance.ExecuteQuery(query);
-            foreach(DataRow row in data.Rows)
+            foreach (DataRow row in data.Rows)
             {
                 Product i = new Product();
                 i.id = (long)row["id"];
@@ -80,7 +94,7 @@ namespace SupplementOrderWeb.Controllers
         }
 
         [HttpPost]
-        public string makeOrder(string json,string paymentType)
+        public string makeOrder(string json, string paymentType)
         {
             if (SessionHelper.getSession() == null)
             {
@@ -105,6 +119,8 @@ namespace SupplementOrderWeb.Controllers
         {
             try
             {
+                if (SessionHelper.getSession() == null)
+                    return 0;
                 string phone = SessionHelper.getSession().UserPhone;
                 string query = "Select * from Customer where phone=" + phone;
                 DataTable data = DataProvider.Instance.ExecuteQuery(query);
@@ -121,7 +137,7 @@ namespace SupplementOrderWeb.Controllers
         {
             string query = "Exec writeExport @cid , @sid , @paymentType , @statusPayment , @statusDelivery ";
             long cid = getCustomerID();
-            if(cid == 0)
+            if (cid == 0)
                 return 0;
             try
             {
@@ -130,14 +146,14 @@ namespace SupplementOrderWeb.Controllers
                 DataTable data = DataProvider.Instance.ExecuteQuery(query);
                 return (long)data.Rows[0]["id"];
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return 0;
             }
             return 0;
         }
 
-        public void writeDetail(long bid,long pid,int quantity)
+        public void writeDetail(long bid, long pid, int quantity)
         {
             string query = "Exec writeExportDetail @bid , @pid , @quantity ";
             int result = DataProvider.Instance.ExecuteNonQuery(query, new object[] { bid, pid, quantity });

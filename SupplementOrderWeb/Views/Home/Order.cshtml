@@ -12,7 +12,7 @@
 
 
 
-<div asp-controller="Home" class="row d-flex flex-row">
+<div asp-controller="Home" class="row d-flex flex-row container-fluid">
     <select id="typeList" class="form-select btn btn-info" aria-label="Types">
         <option selected>Choose type</option>
         @foreach (var item in ViewBag.TypesList)
@@ -25,17 +25,19 @@
     <select id="productList" class="form-select btn btn-info" aria-label="Products">
         <option selected value=0>Choose product</option>
     </select>
-    <label for="quantity">Quantity: </label>
+    <label style="margin-left: 50px" for="quantity">Quantity: </label>
     <input type="number" id="quantity" name="quantity" value=1
            min="1" max="200">
 
 
     <div id="addBtn" class="btn btn-primary " style="margin-left: 4rem">Add to cart</div>
+
+    <img id="productImage" src="~/Images/logo.png" class="img-responsive img-thumbnail" style="max-height: 150px;max-width: 150px; float:right" />
 </div>
 
 
 <div class="row">
-    <table id="table" class="table">
+    <table id="table" class="table" style="margin-top: 2rem">
         <thead>
             <tr>
                 <th scope="col">#ID</th>
@@ -54,7 +56,7 @@
 <div class="row">
     <div class="col-md-5 mx-auto">
         <h2>Ordering information</h2>
-        <label for="paymentType">Choose the Payment Type</label>
+        <div><label for="paymentType">Choose the Payment Type</label></div>
         <div class="btn-group">
             <select name="paymentType" id="paymentType" class="form-select btn btn-info" aria-label="Types">
                 <option selected value="Cashes">Cashes</option>
@@ -62,13 +64,18 @@
                 <option value="MoMo Wallet">MoMo Wallet</option>
             </select>
         </div>
-        <button class="btn btn-success" id="finishBtn">Finish order</button>
+        <div>
+            <button class="btn btn-success" style="margin-top: 2rem;font-size: larger" id="finishBtn">Finish order</button>
+        </div>
+       </dialog>
         <h5>Name: </h5>
         <h5>Address: </h5>
         <h4>Total Pay: <span id="total" style="color:red">0</span><span style="color:red"> VNĐ</span></h4>
         <h2 class="text-sucess"> </h2>
     </div>
 </div>
+
+
 <script type="text/javascript">
     let typeList = document.getElementById("typeList");
     typeList.addEventListener('change', (event) => {
@@ -78,6 +85,14 @@
     let addBtn = document.getElementById("addBtn");
     addBtn.addEventListener('click', (event) => {
         addToCart();
+    });
+
+    // set event for choose Product
+    let productList = document.getElementById("productList");
+    productList.addEventListener('change', (event) => {
+        let value = `${event.target.value}`;
+        let id = value.split('|')[0];
+        $('#productImage').attr("src", "/Images/ProductImage/" + id + ".png");
     });
 
 
@@ -96,6 +111,9 @@
                     $el.append($("<option></option>")
                         .attr("value", data[i].id+"|"+data[i].price+"|"+data[i].unit).text(data[i].name));
                 }
+                let value = $('#productList').val();
+                let id = value.split('|')[0];
+                $('#productImage').attr("src", "/Images/ProductImage/" + id + ".png");
             }
         });
     }

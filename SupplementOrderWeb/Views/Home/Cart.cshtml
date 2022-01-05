@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "Supplement Ordering ";
+
+}
+@model SupplementOrderWeb.Models.Type
+
+
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<p>Remember to fullfil the information , any help or cancel the order , you can contact us with our hotline</p>
+
+
+
+
+<h2>My History Orders</h2>
+
+<div class="row">
+    <table id="table" class="table" style="margin-top: 2rem">
+        <thead>
+            <tr>
+                <th scope="col">Bill ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">IntoMoney</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+
+    getCustomerID();
+
+    function getCustomerID() {
+        var req = new XMLHttpRequest();
+        req.open('POST', '@Url.Action("getCartData", "Cart")');
+        req.setRequestHeader('Content-Type', 'application/json');
+
+        req.onload = function () {
+            if (req.status >= 200 && req.status < 400)
+
+                if (req.responseText == "0")
+                    alert("Please login first to see your order history.");
+
+                else {
+                    let json = JSON.parse(req.responseText);
+
+                    json.forEach(obj => {
+                        let table = document.getElementById("tableBody");
+                        let row = table.insertRow(0);
+
+                        var cell0 = row.insertCell();
+                        var cell1 = row.insertCell();
+                        var cell2 = row.insertCell();
+                        var cell3 = row.insertCell();
+                        var cell4 = row.insertCell();
+                        var cell5 = row.insertCell();
+
+                        // Add some text to the new cells:
+                        cell0.innerHTML = obj.bid;
+                        cell1.innerHTML = obj.name;
+                        cell2.innerHTML = obj.unit;
+                        cell3.innerHTML = obj.price;
+                        cell4.innerHTML = obj.quantity;
+                        cell5.innerHTML = obj.intoMoney;
+                    })
+            }
+            else
+                alert('Error :'+req.status);
+        }
+    req.send();
+    }
+
+
+//function addToCart() {
+
+//}
+</script>
+
+
+
